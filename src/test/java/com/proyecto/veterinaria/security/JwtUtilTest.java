@@ -16,11 +16,12 @@ class JwtUtilTest {
         String correo = faker.internet().emailAddress();
 
         // Act
-        String token = jwtUtil.generarToken(correo);
+        String token = jwtUtil.generarToken(correo, "ADMIN");
 
         // Assert
         assertTrue(jwtUtil.validarToken(token));
         assertEquals(correo, jwtUtil.obtenerCorreo(token));
+        assertEquals("ADMIN", jwtUtil.obtenerRol(token));
     }
 
     @Test

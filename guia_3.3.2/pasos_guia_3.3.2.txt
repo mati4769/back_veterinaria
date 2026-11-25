@@ -1,0 +1,178 @@
+GUIA 3.3.2 - API RESTful CRUD en AWS EC2 con pruebas en Postman
+(solo los pasos y comandos que funcionaron)
+
+==================================================================
+PARTE 1: CREAR LA INSTANCIA EC2
+==================================================================
+
+1. En el Learner Lab presiona "Start Lab", espera el circulo verde
+   y haz clic en "AWS".
+2. En el buscador de arriba escribe EC2 y entra.
+3. Presiona "Lanzar instancia".
+4. Nombre: crud-api
+5. Imagenes de aplicaciones y sistemas operativos (AMI):
+   Amazon Linux -> "Amazon Linux 2023 AMI"
+   (NO usar Amazon Linux 2: ya no tiene soporte y Node no funciona)
+6. Tipo de instancia: t2.micro
+   (AWS pone t3.micro por defecto, hay que cambiarlo)
+7. Par de claves: vockey
+8. Configuracion de red -> "Editar":
+   - Regla 1 (ya viene):  Tipo: ssh | Puerto: 22 | Tipo de origen: Cualquier lugar
+   - Presiona "Agregar regla del grupo de seguridad":
+     Regla 2:            Tipo: TCP personalizado | Puerto: 3000 | Tipo de origen: Cualquier lugar
+   - Deben quedar SOLO esas 2 reglas (si aparece una regla repetida, eliminala).
+   - El aviso amarillo de 0.0.0.0/0 se ignora.
+9. Almacenamiento: dejar por defecto (8 GiB).
+10. Presiona "Lanzar instancia".
+11. Ve a Instancias y espera que diga "En ejecucion".
+12. Copia la "Direccion IPv4 publica" (la necesitas para Postman).
+
+
+==================================================================
+PARTE 2: COMANDOS EN LA TERMINAL DE LA INSTANCIA
+(ejecutar de a uno, en este orden)
+==================================================================
+
+sudo yum update -y
+
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+
+. ~/.nvm/nvm.sh
+
+sudo yum install -y libatomic
+
+nvm install --lts
+
+node -v
+
+npm -v
+
+mkdir crud-api
+
+cd crud-api
+
+npm init -y
+
+npm install express body-parser
+
+nano app.js
+
+   -> Pegar el codigo de abajo (Ctrl+Shift+V o clic derecho -> Pegar)
+   -> Guardar: Ctrl+X, luego Y, luego Enter
+
+node app.js
+
+   -> Debe aparecer:  API running on port 3000
+   -> NO cerrar la terminal mientras se prueba en Postman.
+
+Nota para la defensa: la guia usa "nvm install node", pero hoy ese
+comando instala una version de prueba (alpha) de Node que no funciona.
+Por eso se usa "nvm install --lts" (version estable) y se instala
+"libatomic", una libreria que Node necesita en Amazon Linux 2023.
+
+
+==================================================================
+CODIGO DE app.js (igual al de la guia)
+==================================================================
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+const port = 3000;
+
+app.use(bodyParser.json());
+
+let items = [];
+
+// Create
+app.post('/items', (req, res) => {
+    const item = req.body;
+    item.id = items.length + 1;
+    items.push(item);
+    res.status(201).json(item);
+});
+
+// Read (all)
+app.get('/items', (req, res) => {
+    res.json(items);
+});
+
+// Read (one)
+app.get('/items/:id', (req, res) => {
+    const item = items.find(i => i.id === parseInt(req.params.id));
+    if (item) {
+        res.json(item);
+    } else {
+        res.status(404).send('Item not found');
+    }
+});
+
+// Update
+app.put('/items/:id', (req, res) => {
+    const index = items.findIndex(i => i.id === parseInt(req.params.id));
+    if (index !== -1) {
+        items[index] = { ...items[index], ...req.body, id: items[index].id };
+        res.json(items[index]);
+    } else {
+        res.status(404).send('Item not found');
+    }
+});
+
+// Delete
+app.delete('/items/:id', (req, res) => {
+    const index = items.findIndex(i => i.id === parseInt(req.params.id));
+    if (index !== -1) {
+        items.splice(index, 1);
+        res.status(204).send();
+    } else {
+        res.status(404).send('Item not found');
+    }
+});
+
+app.listen(port, () => {
+    console.log(`API running on port ${port}`);
+});
+
+
+==================================================================
+PARTE 3: PRUEBAS EN POSTMAN
+==================================================================
+
+1. Abrir Postman (la coleccion "CRUD API" ya esta guardada en tu cuenta).
+2. Clic en "CRUD API" -> pestana "Variables" -> en "ip" poner la IP
+   publica nueva (sin http:// y sin :3000) -> guardar con Ctrl+S.
+3. Ejecutar en este orden (clic en cada una -> Send):
+
+   1. Create (POST)    http://IP:3000/items     -> 201 Created
+   2. Read All (GET)   http://IP:3000/items     -> 200 OK
+   3. Read One (GET)   http://IP:3000/items/1   -> 200 OK
+   4. Update (PUT)     http://IP:3000/items/1   -> 200 OK
+   5. Delete (DELETE)  http://IP:3000/items/1   -> 204 No Content
+
+   Body del POST (raw JSON):
+   {
+       "name": "Item 1",
+       "description": "This is item 1"
+   }
+
+   Body del PUT (raw JSON):
+   {
+       "name": "Updated Item 1",
+       "description": "This is the updated item 1"
+   }
+
+Prueba rapida sin Postman: abrir en el navegador http://IP:3000/items
+(debe mostrar [] o la lista de items).
+
+Los items se guardan en memoria: si se detiene node app.js, se borran.
+Siempre partir por el POST.
+
+
+==================================================================
+PARTE 4: CERRAR LA INSTANCIA (ultimo paso de la guia)
+==================================================================
+
+1. En la terminal: Ctrl+C (detiene la API).
+2. EC2 -> Instancias -> seleccionar crud-api.
+3. "Estado de la instancia" -> "Terminar (eliminar) instancia" -> confirmar.
+4. Esperar que diga "Terminada".

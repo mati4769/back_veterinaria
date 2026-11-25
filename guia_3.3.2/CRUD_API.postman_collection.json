@@ -1,0 +1,83 @@
+{
+  "info": {
+    "name": "CRUD API",
+    "description": "Pruebas de la guía 3.3.2: API RESTful CRUD en AWS EC2 t2.micro. Cambia la variable ip por la IP pública de tu instancia EC2.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "ip",
+      "value": "tu-ip-publica"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Create (POST)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Item 1\",\n    \"description\": \"This is item 1\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "http://{{ip}}:3000/items"
+      }
+    },
+    {
+      "name": "2. Read All (GET)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "http://{{ip}}:3000/items"
+      }
+    },
+    {
+      "name": "3. Read One (GET)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "http://{{ip}}:3000/items/1"
+      }
+    },
+    {
+      "name": "4. Update (PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Updated Item 1\",\n    \"description\": \"This is the updated item 1\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "http://{{ip}}:3000/items/1"
+      }
+    },
+    {
+      "name": "5. Delete (DELETE)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "http://{{ip}}:3000/items/1"
+      }
+    }
+  ]
+}

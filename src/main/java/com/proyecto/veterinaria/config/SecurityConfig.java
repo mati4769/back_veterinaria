@@ -29,6 +29,11 @@ public class SecurityConfig {
                                 "/v3/api-docs/**", "/error").permitAll()
                         // sin token: ver el catalogo de productos (la pagina Productos es publica)
                         .requestMatchers(HttpMethod.GET, "/api/v1/productos/**").permitAll()
+                        // solo ADMIN: administrar productos, clientes y administradores
+                        .requestMatchers("/api/v1/productos/**", "/api/v1/clientes/**",
+                                "/api/v1/admins/**").hasRole("ADMIN")
+                        // USER y ADMIN: los servicios (compras de los clientes)
+                        .requestMatchers("/api/v1/servicios/**").hasAnyRole("USER", "ADMIN")
                         // todo lo demas necesita token
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

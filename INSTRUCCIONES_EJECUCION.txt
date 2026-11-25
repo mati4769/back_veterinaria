@@ -1,0 +1,75 @@
+VETERINARIA SAN MARCOS - INSTRUCCIONES PARA EJECUTAR EL PROYECTO
+=================================================================
+
+El proyecto se ejecuta en 3 partes, en este orden:
+  1. Base de datos MySQL  (XAMPP)         -> puerto 3306
+  2. Backend Spring Boot  (IntelliJ IDEA) -> puerto 8080
+  3. Frontend React       (VS Code)       -> puerto 5173
+
+
+REQUISITOS
+----------
+- XAMPP (MySQL y phpMyAdmin)
+- JDK 17 e IntelliJ IDEA
+- Node.js 22 y VS Code
+
+
+1. BASE DE DATOS (XAMPP)
+------------------------
+1. Abrir XAMPP y presionar "Start" en Apache y en MySQL.
+2. Entrar a http://localhost/phpmyadmin
+3. Crear la base de datos: clic en "Nueva", escribir el nombre
+   veterinaria_san_marcos y presionar "Crear".
+4. Entrar a la base de datos veterinaria_san_marcos, ir a "Importar",
+   elegir el archivo veterinaria_san_marcos.sql y presionar "Importar".
+   Se crean todas las tablas con sus datos.
+
+Con Flyway: si la base de datos veterinaria_san_marcos se crea vacia y no
+se importa el script, el backend crea las tablas y los datos al iniciar
+(migracion src/main/resources/db/migration/V1__crear_base_veterinaria.sql).
+
+
+2. BACKEND (IntelliJ IDEA)
+--------------------------
+1. File -> Open -> elegir la carpeta back_veterinaria.
+2. Esperar a que Maven descargue las dependencias.
+3. Revisar que use Java 17 (File -> Project Structure -> SDK: 17).
+4. El usuario de MySQL es root sin contraseña. Si es otro, cambiarlo en
+   src/main/resources/application.properties.
+5. Ejecutar VeterinariaApplication. En la consola debe aparecer:
+   Tomcat started on port 8080
+
+Swagger: http://localhost:8080/swagger-ui/index.html
+
+Pruebas: clic derecho en src/test/java -> Run 'All Tests' (15 pruebas).
+
+
+3. FRONTEND (VS Code)
+---------------------
+1. File -> Open Folder -> elegir la carpeta front_veterinaria.
+2. Abrir una terminal (Terminal -> New Terminal) y ejecutar:
+     npm install
+     npm run dev
+3. Abrir en el navegador: http://localhost:5173
+
+Pruebas: npx vitest run (7 pasan y 4 fallan; las 4 que fallan son
+defectos documentados en plan_de_pruebas.md).
+
+
+USUARIOS DE PRUEBA
+------------------
+ADMIN
+  Correo:      admin@duocuc.cl
+  Contraseña:  Admin1234
+  Entra al Panel admin y puede agregar, editar y eliminar productos
+  (los cambios se guardan en MySQL).
+
+USER (cliente)
+  Correo:      marcela.rojas@gmail.com
+  Contraseña:  Marcela1234
+  Entra a Mi perfil y Ficha clinica. No puede entrar al Panel admin
+  ni modificar productos.
+
+VISITANTE (sin iniciar sesion)
+  Ve Inicio, Productos, Carrito y Citas. Si intenta entrar a Mi perfil,
+  Ficha clinica o Panel admin, lo manda al inicio de sesion.

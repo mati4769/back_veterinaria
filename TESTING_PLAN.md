@@ -42,5 +42,16 @@ Las pruebas de los services no usan la base de datos: el repositorio se reemplaz
 | CP-08 | AdminServiceTest | Login con credenciales correctas | Validar el inicio de sesión de un admin. | El login retorna verdadero. | Unitaria |
 | CP-09 | AdminServiceTest | Login con contraseña incorrecta | Validar que se rechace una contraseña equivocada. | El login retorna falso. | Unitaria |
 | CP-10 | AdminServiceTest | Login con correo que no existe | Validar que se rechace un correo no registrado. | El login retorna falso. | Unitaria |
-| CP-11 | JwtUtilTest | Generar y leer token | Validar que el token JWT generado sea válido. | El token es válido y contiene el mismo correo. | Unitaria |
+| CP-11 | JwtUtilTest | Generar y leer token | Validar que el token JWT generado sea válido y guarde el rol. | El token es válido y contiene el mismo correo y el rol ADMIN. | Unitaria |
 | CP-12 | JwtUtilTest | Token inventado no es válido | Validar que se rechace un token falso. | La validación retorna falso. | Unitaria |
+| CP-13 | ClienteServiceTest | Login de cliente con credenciales correctas | Validar el inicio de sesión de un cliente (rol USER). | El login retorna verdadero. | Unitaria |
+| CP-14 | ClienteServiceTest | Login de cliente con contraseña incorrecta | Validar que se rechace la contraseña equivocada de un cliente. | El login retorna falso. | Unitaria |
+
+---
+
+## Cambios de la 3ra evaluación (roles USER y ADMIN)
+
+- El login ahora reconoce dos roles: **ADMIN** (usuarios de la tabla `admin`) y **USER** (usuarios de la tabla `cliente`). El token JWT guarda el rol.
+- **CP-11 (modificada):** además del correo, revisa que el token guarde el rol `ADMIN`.
+- **CP-13 y CP-14 (nuevas, `ClienteServiceTest`):** prueban el login de un cliente, que es el que entra con rol USER.
+- **Total:** 14 pruebas unitarias + `contextLoads` = 15 pruebas.

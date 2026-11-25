@@ -42,4 +42,11 @@ public class ClienteService {
         }
     }
 
+    // JWT: revisa que exista un cliente con ese correo y que la contrasena sea la misma
+    public boolean login(String correo, String contrasena){
+        Optional<Cliente> cliente = repository.findByCorreo(correo);
+
+        return cliente.isPresent() && cliente.get().getContrasena().equals(contrasena);
+    }
+
 }
